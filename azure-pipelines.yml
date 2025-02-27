@@ -1,0 +1,36 @@
+# Deploy to Prod
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  phpVersion: 8.1
+
+steps:
+- script: |
+    sudo update-alternatives --set php /usr/bin/php$(phpVersion)
+    sudo update-alternatives --set phar /usr/bin/phar$(phpVersion)
+    sudo update-alternatives --set phpdbg /usr/bin/phpdbg$(phpVersion)
+    sudo update-alternatives --set php-cgi /usr/bin/php-cgi$(phpVersion)
+    sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
+    php -version
+  displayName: 'Use PHP version $(phpVersion)'  
+
+- script: composer clearcache
+  displayName: 'clear composer cache'
+- script: composer update --no-install --no-interaction --prefer-dist --ignore-platform-req=ext-mbstring --ignore-platform-req=ext-fileinfo --ignore-platform-req=ext-curl --ignore-platform-req=ext-pdo_sqlsrv --ignore-platform-req=ext-pdo_mysql
+  displayName: 'create lock file'
+- script: composer install --no-interaction --prefer-dist --ignore-platform-req=ext-mbstring --ignore-platform-req=ext-fileinfo --ignore-platform-req=ext-curl --ignore-platform-req=ext-pdo_sqlsrv --ignore-platform-req=ext-pdo_mysql
+  displayName: 'composer install'
+
+#- script: $(system.defaultWorkingDirectory)/vendor/bin/phpunit
+#  displayName: 'run tests'
+  
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(system.defaultWorkingDirectory)'
+    includeRootFolder: false
+- task: PublishBuildArtifacts@1

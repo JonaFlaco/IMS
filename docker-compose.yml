@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+  app:
+    container_name: ims-app
+    build: ./docker/app
+    image: ims-app
+    ports:
+      - "8083:80"
+    volumes:
+      # Mount source-code for development
+      - ./:/var/www
+    # environment:
+    #   # Update these environment variables to match your SQL Server configuration
+    #   MSSQL_USER: ${DB_USER}
+    #   MSSQL_PASSWORD: ${DB_PASS}
+    #   MSSQL_SERVER: ${DB_HOST}
+    #   MSSQL_DATABASE: ${DB_NAME}
+    # depends_on:
+    #   - db
+    # links:
+    #   - db
+  # db:
+  #   container_name: ims-db
+  #   build:
+  #     context: ./docker/db
+  #   image: ims-db
+  #   ports:
+  #     - "2000:1433"
+  #   environment:
+  #     # Update these environment variables with your desired SQL Server settings
+  #     ACCEPT_EULA: Y
+  #     SA_PASSWORD: ${DB_PASS}
+  #     MSSQL_PID: Developer
+
+ 

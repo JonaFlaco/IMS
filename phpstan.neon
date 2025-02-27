@@ -1,0 +1,6 @@
+parameters:
+    bootstrapFiles:
+        - Src/Bootstrap.php
+    tmpDir: /runtime/phpstan_tmp
+    level: 1
+    editorUrl: 'vscode://file/%%file%%:%%line%%'

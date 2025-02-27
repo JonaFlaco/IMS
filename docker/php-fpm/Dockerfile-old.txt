@@ -1,0 +1,70 @@
+FROM php:8.1-apache
+
+
+#Copy virtual host into container
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# Enable rewrite mode
+RUN a2enmod rewrite
+
+# Install necessary pacakges
+RUN apt-get update && \
+    apt-get install \
+    libzip-dev \
+    wget \
+    git \
+    unzip \
+    -y --no-install-recommends
+
+# Install php extensions
+RUN docker-php-ext-install zip pdo_mysql
+
+RUN apt-get update && \
+    apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
+    docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
+    docker-php-ext-install gd
+
+
+# Copy composer installable
+COPY ./install-composer.sh ./
+
+#Copy php.ini
+COPY ./php.ini /usr/local/etc/php/
+
+
+# # Cleanup packages and install composer
+# RUN apt-get purge -y g++ \
+#     && apt-get autoremove -y \
+#     && rm -r /var/lib/apt/lists/* \
+#     && rm -rf /tmp/* \
+#     && sh ./install-composer.sh \
+#     && rm ./install-composer.sh
+
+
+
+
+RUN apt-get update \
+    && apt-get install -y zlib1g-dev libicu-dev g++
+
+
+
+ENV ACCEPT_EULA=Y
+RUN apt-get update && apt-get install -y gnupg2
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - 
+RUN curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list 
+RUN apt-get update 
+RUN ACCEPT_EULA=Y apt-get -y --no-install-recommends install msodbcsql17 unixodbc-dev 
+RUN pecl install sqlsrv
+RUN pecl install pdo_sqlsrv
+RUN docker-php-ext-enable sqlsrv pdo_sqlsrv
+
+
+
+
+# Change the current working directory
+WORKDIR /var/www
+
+RUN chown -R www-data:www-data /var/www
+
+# Start apache in foreground
+CMD ["apache2-foreground"]

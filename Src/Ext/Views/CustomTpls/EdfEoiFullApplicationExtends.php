@@ -1,0 +1,1 @@
+<?= App\Core\Application::getInstance()->view->renderView('CustomTpls/EdfRelatedFormsComponent',[]) ?>

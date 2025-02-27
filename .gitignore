@@ -1,0 +1,8 @@
+/vendor
+/runtime
+.env
+.env.testing
+composer.lock
+/.idea
+phinx.php
+/.vscode
